@@ -1,4 +1,4 @@
-from azure.cli.core.commands.client_factory import get_mgmt_service_client
+from azure.common.client_factory import get_client_from_cli_profile
 from azure.mgmt.resource.resources import ResourceManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.storage import StorageManagementClient
@@ -62,9 +62,9 @@ class EngineScaler(Scaler):
 
     def delete_resources_for_node(self, node):
         logger.info('deleting node {}'.format(node.name))
-        resource_management_client = get_mgmt_service_client(
+        resource_management_client = get_client_from_cli_profile(
             ResourceManagementClient)
-        compute_management_client = get_mgmt_service_client(
+        compute_management_client = get_client_from_cli_profile(
             ComputeManagementClient)
 
         vm_details = compute_management_client.virtual_machines.get(
@@ -107,14 +107,14 @@ class EngineScaler(Scaler):
                                                                     nic_name,
                                                                     '2016-03-30')
         delete_nic_op.wait()
-        
+
         # delete os blob
         logger.info('Deleting OS disk for {}'.format(node.name))
         if os_disk.managed_disk:
             delete_managed_disk_op = compute_management_client.disks.delete(self.resource_group_name, managed_disk_name)
             delete_managed_disk_op.wait()
-        else:        
-            storage_management_client = get_mgmt_service_client(
+        else:
+            storage_management_client = get_client_from_cli_profile(
                 StorageManagementClient)
             keys = storage_management_client.storage_accounts.list_keys(
                 self.resource_group_name, account_name)
@@ -187,7 +187,7 @@ class EngineScaler(Scaler):
 
         deployment_id = str(uuid.uuid4()).split('-')[0]
         deployment_name = "autoscaler-deployment-{}".format(deployment_id)
-        smc = get_mgmt_service_client(ResourceManagementClient)
+        smc = get_client_from_cli_profile(ResourceManagementClient)
         logger.info('Deployment {} started...'.format(deployment_name))
         return smc.deployments.create_or_update(self.resource_group_name,
                                                 deployment_name,

@@ -2,10 +2,9 @@ import requests
 from adal.adal_error import AdalError
 from azure.cli.core._profile import Profile
 from adal.adal_error import AdalError
-from azure.cli.core.prompting import prompt_pass, NoTTYException
 import azure.cli.core.azlogging as azlogging
 from azure.cli.core.util import CLIError
-from azure.cli.core.commands.client_factory import get_mgmt_service_client
+from azure.common.client_factory import get_client_from_cli_profile
 from azure.mgmt.resource.resources import ResourceManagementClient
 
 def login(username, password, tenant):
@@ -35,12 +34,12 @@ def login(username, password, tenant):
     return all_subscriptions
 
 def download_template(resource_group_name, acs_deployment):
-    resource_management_client = get_mgmt_service_client(
+    resource_management_client = get_client_from_cli_profile(
             ResourceManagementClient)
     return resource_management_client.deployments.export_template(resource_group_name, acs_deployment).template
 
 def download_parameters(resource_group_name, acs_deployment):
-    resource_management_client = get_mgmt_service_client(
+    resource_management_client = get_client_from_cli_profile(
             ResourceManagementClient)
     deployment = resource_management_client.deployments.get(resource_group_name, acs_deployment)
     parameters = deployment.properties.parameters

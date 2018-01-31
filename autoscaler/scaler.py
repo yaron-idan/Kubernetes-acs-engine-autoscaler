@@ -2,7 +2,6 @@ import time
 import datetime
 import logging
 
-from azure.cli.core.commands.client_factory import get_mgmt_service_client
 from azure.mgmt.resource.resources import ResourceManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.storage import StorageManagementClient
@@ -51,7 +50,7 @@ class Scaler(object):
         self.agent_pools = None
         self.scalable_pools = None
         self.ignored_pool_names = {}
-    
+
     def get_agent_pools(self, nodes):
         raise NotImplementedError()
 
@@ -84,7 +83,7 @@ class Scaler(object):
 
         utilization = sum((p.resources for p in busy_list), KubeResource())
         under_utilized = (self.UTIL_THRESHOLD *
-                          node.capacity - utilization).possible 
+                          node.capacity - utilization).possible
         drainable = not undrainable_list
 
         if busy_list and not under_utilized:
@@ -124,7 +123,7 @@ class Scaler(object):
         for pool in ordered_pools:
             new_pool_sizes[pool.name] = pool.actual_capacity
             current_pool_sizes[pool.name] = pool.actual_capacity
-            
+
             if pool.name in self.ignored_pool_names or not num_unaccounted:
                 continue
 
@@ -158,7 +157,7 @@ class Scaler(object):
             units_requested = units_needed - unavailable_units
 
             logger.debug("units_needed: %s", units_needed)
-            
+
             logger.debug("units_requested: %s", units_requested)
 
             new_capacity = pool.actual_capacity + units_requested
@@ -182,4 +181,3 @@ class Scaler(object):
         self.scale_pools(new_pool_sizes)
         if self.notifier:
             self.notifier.notify_scale(new_pool_sizes, pods, current_pool_sizes)
-        

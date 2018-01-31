@@ -1,5 +1,4 @@
 from azure.cli.core.util import get_file_json
-from azure.cli.core.commands.client_factory import get_mgmt_service_client
 from azure.mgmt.resource.resources import ResourceManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 import logging
@@ -21,12 +20,12 @@ class AgentPool(object):
     @property
     def actual_capacity(self):
         return len(self.nodes)
-    
+
     @property
     def unit_capacity(self):
         #Within a pool, every node should have the same capacity
         return get_capacity_for_instance_type(self.instance_type)
-    
+
     def reclaim_unschedulable_nodes(self, new_desired_capacity):
         """
         Try to get the number of schedulable nodes up if we don't have enough before scaling
@@ -34,7 +33,7 @@ class AgentPool(object):
         desired_capacity = min(self.max_size, new_desired_capacity)
         num_unschedulable = len(self.unschedulable_nodes)
         num_schedulable = self.actual_capacity - num_unschedulable
-     
+
         if num_schedulable < desired_capacity:
             for node in self.unschedulable_nodes:
                 if node.uncordon():
@@ -48,4 +47,3 @@ class AgentPool(object):
             if node.index == index:
                 return True
         return False
-    
